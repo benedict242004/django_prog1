@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History — ResumeIQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --bg:#060608;--surface:#0e0e12;--border:#1e1e28;--accent:#7c6ff7;--accent2:#a78bfa;--green:#34d399;--red:#f87171;--yellow:#fbbf24;--text:#e2e2ef;--muted:#6b6b80; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+        nav { display:flex;align-items:center;justify-content:space-between;padding:20px 48px;border-bottom:1px solid var(--border); }
+        .logo { font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+        .back-btn { color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;border:1px solid var(--border);border-radius:8px;padding:8px 14px;transition:border-color 0.2s,color 0.2s; }
+        .back-btn:hover { border-color:#333;color:var(--text); }
+        .container { max-width:860px;margin:0 auto;padding:48px 24px; }
+        h1 { font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:8px; }
+        .subtitle { color:var(--muted);font-size:14px;margin-bottom:40px; }
+        .result-row {
+            display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;
+            background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;
+            margin-bottom:12px;text-decoration:none;color:var(--text);
+            transition:border-color 0.2s,box-shadow 0.2s;
+        }
+        .result-row:hover { border-color:var(--accent);box-shadow:0 4px 24px rgba(124,111,247,0.1); }
+        .score-badge {
+            width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+            font-size:14px;font-weight:800;
+        }
+        .score-high { background:rgba(52,211,153,0.12);color:var(--green); }
+        .score-mid { background:rgba(251,191,36,0.12);color:var(--yellow); }
+        .score-low { background:rgba(248,113,113,0.1);color:var(--red); }
+        .result-info h3 { font-size:15px;font-weight:700;margin-bottom:4px; }
+        .result-info span { font-size:12px;color:var(--muted); }
+        .arrow { color:var(--muted);font-size:18px; }
+        .empty { text-align:center;padding:80px 24px;color:var(--muted); }
+        .empty p { font-size:15px;margin-bottom:20px; }
+        .new-btn {
+            display:inline-block;background:linear-gradient(135deg,var(--accent),#5b52e0);color:white;
+            text-decoration:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:700;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">ResumeIQ</div>
+        <a href="{% url 'analyzer_index' %}" class="back-btn">← New Analysis</a>
+    </nav>
+    <div class="container">
+        <h1>Analysis History</h1>
+        <p class="subtitle">Your last {{ results|length }} resume analyses</p>
+
+        {% if results %}
+            {% for r in results %}
+            <a href="{% url 'result' r.id %}" class="result-row">
+                <div class="score-badge {% if r.match_score >= 70 %}score-high{% elif r.match_score >= 40 %}score-mid{% else %}score-low{% endif %}">
+                    {{ r.match_score }}%
+                </div>
+                <div class="result-info">
+                    <h3>{{ r.job_title }}</h3>
+                    <span>{{ r.created_at|date:"M j, Y · g:i A" }}</span>
+                </div>
+                <div class="arrow">→</div>
+            </a>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                <p>No analyses yet. Upload your first resume to get started.</p>
+                <a href="{% url 'analyzer_index' %}" class="new-btn">✦ Analyze a Resume</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeIQ — AI Resume Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #060608;
+            --surface: #0e0e12;
+            --surface2: #16161d;
+            --border: #1e1e28;
+            --accent: #7c6ff7;
+            --accent2: #a78bfa;
+            --green: #34d399;
+            --red: #f87171;
+            --text: #e2e2ef;
+            --muted: #6b6b80;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bg-glow::before {
+            content: '';
+            position: absolute;
+            width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(124,111,247,0.12) 0%, transparent 70%);
+            top: -200px; left: -200px;
+            animation: floatA 12s ease-in-out infinite alternate;
+        }
+        .bg-glow::after {
+            content: '';
+            position: absolute;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(52,211,153,0.08) 0%, transparent 70%);
+            bottom: -100px; right: -100px;
+            animation: floatB 10s ease-in-out infinite alternate;
+        }
+        @keyframes floatA { from { transform: translate(0,0); } to { transform: translate(80px, 60px); } }
+        @keyframes floatB { from { transform: translate(0,0); } to { transform: translate(-60px, -40px); } }
+
+        nav {
+            position: relative; z-index: 10;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 48px;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+        .logo {
+            font-size: 18px; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .nav-links { display: flex; gap: 24px; }
+        .nav-links a {
+            color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+
+        .hero {
+            position: relative; z-index: 1;
+            text-align: center;
+            padding: 80px 24px 60px;
+        }
+        .badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(124,111,247,0.12);
+            border: 1px solid rgba(124,111,247,0.25);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 12px; font-weight: 600; color: var(--accent2);
+            letter-spacing: 0.5px; text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+        .badge-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent2);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+        h1 {
+            font-size: clamp(36px, 6vw, 64px);
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+        h1 span {
+            background: linear-gradient(135deg, #7c6ff7, #a78bfa, #34d399);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-sub {
+            font-size: 17px; color: var(--muted); max-width: 520px;
+            margin: 0 auto 48px; line-height: 1.7; font-weight: 400;
+        }
+
+        .stats {
+            display: flex; justify-content: center; gap: 48px;
+            margin-bottom: 64px; flex-wrap: wrap;
+        }
+        .stat { text-align: center; }
+        .stat-num {
+            font-size: 28px; font-weight: 800; letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--accent2), var(--green));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .main-card {
+            position: relative; z-index: 1;
+            max-width: 860px; margin: 0 auto 80px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 40px 120px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+        }
+
+        .messages { margin-bottom: 24px; }
+        .msg {
+            background: rgba(248,113,113,0.1);
+            border: 1px solid rgba(248,113,113,0.25);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px; color: #f87171;
+            margin-bottom: 8px;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 40px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s, background 0.3s;
+            margin-bottom: 24px;
+            position: relative;
+        }
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(124,111,247,0.05);
+        }
+        .upload-zone input[type="file"] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+        }
+        .upload-icon {
+            width: 52px; height: 52px; margin: 0 auto 16px;
+            background: rgba(124,111,247,0.15);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .upload-icon svg { width: 24px; height: 24px; stroke: var(--accent2); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        .upload-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+        .upload-sub { font-size: 13px; color: var(--muted); }
+        .upload-sub span { color: var(--accent2); font-weight: 600; }
+        .file-selected {
+            display: none; margin-top: 12px;
+            background: rgba(52,211,153,0.1);
+            border: 1px solid rgba(52,211,153,0.2);
+            border-radius: 8px; padding: 8px 14px;
+            font-size: 13px; color: var(--green); font-weight: 500;
+        }
+
+        .field-label {
+            font-size: 12px; font-weight: 600; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 10px; display: block;
+        }
+        textarea {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px; line-height: 1.6;
+            padding: 16px;
+            resize: vertical; min-height: 180px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124,111,247,0.12);
+        }
+        textarea::placeholder { color: #3a3a4a; }
+
+        .submit-btn {
+            width: 100%; margin-top: 28px;
+            background: linear-gradient(135deg, var(--accent), #5b52e0);
+            color: #fff;
+            border: none; border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px; font-weight: 700;
+            padding: 16px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+            letter-spacing: 0.2px;
+            box-shadow: 0 8px 32px rgba(124,111,247,0.35);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .submit-btn:hover { opacity: 0.92; box-shadow: 0 12px 40px rgba(124,111,247,0.45); }
+        .submit-btn:active { transform: scale(0.99); }
+        .submit-btn.loading { opacity: 0.7; pointer-events: none; }
+
+        .spinner {
+            display: none;
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .how-it-works {
+            position: relative; z-index: 1;
+            max-width: 860px; margin: 0 auto 80px;
+        }
+        .section-title {
+            font-size: 11px; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 1.5px;
+            text-align: center; margin-bottom: 32px;
+        }
+        .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 24px;
+            text-align: center;
+        }
+        .step-num {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--accent), #5b52e0);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 800; color: white;
+            margin: 0 auto 16px;
+        }
+        .step h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+        .step p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+        footer {
+            position: relative; z-index: 1;
+            text-align: center; padding: 32px;
+            border-top: 1px solid var(--border);
+            font-size: 12px; color: var(--muted);
+        }
+        footer a { color: var(--accent2); text-decoration: none; }
+
+        @media (max-width: 640px) {
+            nav { padding: 16px 24px; }
+            .main-card { padding: 28px 20px; margin: 0 16px 48px; }
+            .steps { grid-template-columns: 1fr; }
+            .stats { gap: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <nav>
+        <div class="logo">ResumeIQ</div>
+        <div class="nav-links">
+            <a href="{% url 'history' %}">History</a>
+            <a href="/admin/">Admin</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="badge"><span class="badge-dot"></span> Powered by AI</div>
+        <h1>Land your dream job<br>with <span>AI-powered</span> insights</h1>
+        <p class="hero-sub">Upload your resume, paste the job description, and get an instant match score, skill gap analysis, and tailored suggestions.</p>
+
+        <div class="stats">
+            <div class="stat"><div class="stat-num">98%</div><div class="stat-label">Accuracy</div></div>
+            <div class="stat"><div class="stat-num">&lt;10s</div><div class="stat-label">Analysis time</div></div>
+            <div class="stat"><div class="stat-num">5+</div><div class="stat-label">Actionable tips</div></div>
+        </div>
+    </div>
+
+    <div class="main-card">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="msg">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'analyze' %}" enctype="multipart/form-data" id="analyzeForm">
+            {% csrf_token %}
+
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" name="resume" accept=".pdf" id="resumeInput" required>
+                <div class="upload-icon">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                </div>
+                <div class="upload-title">Drop your resume here</div>
+                <div class="upload-sub">or <span>browse files</span> — PDF only</div>
+                <div class="file-selected" id="fileSelected">Selected: <span id="fileName"></span></div>
+            </div>
+
+            <label class="field-label" for="jobDesc">Job Description</label>
+            <textarea id="jobDesc" name="job_description" placeholder="Paste the full job description here — include required skills, responsibilities, and qualifications for best results..." required></textarea>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <div class="spinner" id="spinner"></div>
+                <span id="btnText">Analyze My Resume</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="how-it-works">
+        <div class="section-title">How it works</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Upload Resume</h3>
+                <p>We extract all text from your PDF resume using smart parsing.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>AI Analysis</h3>
+                <p>Our AI reads both documents and performs a deep semantic match analysis.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Get Results</h3>
+                <p>Receive your match score, skill gaps, and 5 specific improvement suggestions.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Built with Django + AI &nbsp;·&nbsp; <a href="{% url 'history' %}">View past analyses</a>
+    </footer>
+
+    <script>
+        const input = document.getElementById('resumeInput');
+        const fileSelected = document.getElementById('fileSelected');
+        const fileName = document.getElementById('fileName');
+        const uploadZone = document.getElementById('uploadZone');
+        const form = document.getElementById('analyzeForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const spinner = document.getElementById('spinner');
+        const btnText = document.getElementById('btnText');
+
+        input.addEventListener('change', () => {
+            if (input.files[0]) {
+                fileName.textContent = input.files[0].name;
+                fileSelected.style.display = 'block';
+                uploadZone.style.borderColor = 'var(--green)';
+            }
+        });
+
+        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+        uploadZone.addEventListener('drop', e => {
+            e.preventDefault(); uploadZone.classList.remove('dragover');
+            if (e.dataTransfer.files[0]) {
+                input.files = e.dataTransfer.files;
+                fileName.textContent = e.dataTransfer.files[0].name;
+                fileSelected.style.display = 'block';
+                uploadZone.style.borderColor = 'var(--green)';
+            }
+        });
+
+        form.addEventListener('submit', () => {
+            submitBtn.classList.add('loading');
+            spinner.style.display = 'block';
+            btnText.textContent = 'Analyzing...';
+        });
+    </script>
+</body>
+</html>

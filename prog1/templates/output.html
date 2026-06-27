@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #0f0f0f;
+            color: #e8e8e8;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background-color: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+        }
+
+        .card-header {
+            margin-bottom: 36px;
+        }
+
+        .card-header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #ffffff;
+        }
+
+        .card-header p {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .divider {
+            height: 1px;
+            background: #2a2a2a;
+            margin-bottom: 32px;
+        }
+
+        .field {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 14px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .field:last-child {
+            border-bottom: none;
+        }
+
+        .field-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .field-value {
+            font-size: 14px;
+            color: #e8e8e8;
+            font-weight: 400;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-all;
+        }
+
+        .back-btn {
+            display: block;
+            width: 100%;
+            margin-top: 32px;
+            background-color: transparent;
+            color: #666;
+            border: 1px solid #2e2e2e;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 11px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: border-color 0.2s, color 0.2s;
+            letter-spacing: 0.1px;
+        }
+
+        .back-btn:hover {
+            border-color: #555;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="card-header">
+            <h1>Account details</h1>
+            <p>Registration successful.</p>
+        </div>
+        <div class="divider"></div>
+        <div class="field">
+            <span class="field-label">Name</span>
+            <span class="field-value">{{NAME}}</span>
+        </div>
+        <div class="field">
+            <span class="field-label">Password</span>
+            <span class="field-value">{{PASSWORD}}</span>
+        </div>
+        <div class="field">
+            <span class="field-label">Email</span>
+            <span class="field-value">{{EMAIL}}</span>
+        </div>
+        <div class="field">
+            <span class="field-label">Address</span>
+            <span class="field-value">{{ADDRESS}}</span>
+        </div>
+        <a href="/" class="back-btn">Back to registration</a>
+    </div>
+</body>
+</html>
